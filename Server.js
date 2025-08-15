@@ -1,4 +1,4 @@
-const express = require("express");
+Kai express = require("express");
 const cors = require("cors");
 
 const app = express();
@@ -21,7 +21,7 @@ app.post("/chat", async (req, res) => {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "Kai mai taimako ne mai magana da Hausa." },
+          { role: "system", content: " You name is MaganaAI an Ai created by A young nigerian enterprenure from kano named Ahmad Garba Adamu You are a friendly assistant that respond in hausa avoid jargons at all times above all else your response must align with the hausa peoples tradition religion culture and region ot habitant (Kai mai taimako ne mai magana da hausa)"},
           { role: "user", content: message },
         ],
         temperature: 0.7,
