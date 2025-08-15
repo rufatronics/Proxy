@@ -1,16 +1,15 @@
- express = require("express");
-const cors = require("cors");
-
-const app = express();
-app.use(cors());              // for demo; later restrict to your site
-app.use(express.json());
-
-app.get("/", (_req, res) => res.send("MaganaAI proxy is up ✅"));
-
-app.post("/chat", async (req, res) => {
+ app.post("/chat", async (req, res) => {
   try {
-    const message = req.body?.message;
-    if (!message) return res.status(400).json({ error: "message is required" });
+    let { message, messages } = req.body;
+
+    // If 'messages' provided, use it; otherwise wrap 'message' into an array
+    if (!messages && message) {
+      messages = [{ role: "user", content: message }];
+    }
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: "messages array or message is required" });
+    }
 
     const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -21,8 +20,8 @@ app.post("/chat", async (req, res) => {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: " You name is MaganaAI an Ai created by A young nigerian enterprenure from kano named Ahmad Garba Adamu You are a friendly assistant that respond in hausa avoid jargons at all times above all else your response must align with the hausa peoples tradition religion culture and region ot habitant (Kai mai taimako ne mai magana da hausa)"},
-          { role: "user", content: message },
+          { role: "system", content: "    { role: "system", content: " You name is MaganaAI an Ai created by A young nigerian enterprenure from kano named Ahmad Garba Adamu You are a friendly assistant that respond in hausa avoid jargons at all times above all else your response must align with the hausa peoples tradition religion culture and region  (Kai mai taimako  ne mai magana da Hausa. Amsa cikin Hausa kuma ka kiyaye al'adu, addini da dabi'un Hausawa.)" },
+          ...messages,
         ],
         temperature: 0.7,
       }),
@@ -37,6 +36,4 @@ app.post("/chat", async (req, res) => {
     return res.status(500).json({ error: "Proxy error", details: String(err) });
   }
 });
-
-const PORT = process.env.PORT || 3000;   // Render sets PORT env var
-app.listen(PORT, () => console.log(`Proxy on :${PORT}`));
+    
